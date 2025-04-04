@@ -59,63 +59,19 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      packages: write
+      contents: read
     
     steps:
-      - uses: actions/checkout@v4
-        with: 
-          fetch-depth: 0
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: package
+          path: downloaded-package
 
       - name: Verify Integrity
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-            gh attestation verify --owner wulfland ./src/index.js
+            gh attestation verify --owner wulfland ./downloaded-package/index.js
 
-      - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v0.10.2
-        with:
-          versionSpec: '5.x'
-          
-      - name: Determine Version
-        uses: gittools/actions/gitversion/execute@v0.10.2
-        with:
-          useConfigFile: true
-     
-      # If we use a token or app instead of the GITHUB_TOKEN, the release
-      # would trigger the other workflow. As we are using the GITHUB_TOKEN
-      # we manually have to publish the package.
-      # In a real-world scenario we would put the logic in a reusable workflow or
-      # composite action.
-      - name: Create a new release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh api \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/wulfland/package-recipe/dependency-graph/sbom > sbom.json
-          gh release create ${{ env.GITVERSION_SEMVER }} --generate-notes
-          gh release upload ${{ env.GITVERSION_SEMVER }} sbom.json --clobber
-    
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 21.x
-          registry-url: https://npm.pkg.github.com/
-
-      - name: 'Change NPM version'
-        uses: reedyuk/npm-version@1.2.2
-        with:
-          version: $GITVERSION_SEMVER
-  
-      - name: Install dependencies
-        run: npm install
-    
-      - name: Run tests
-        run: npm test
-            
-      - name: Publish package 
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      
