@@ -13,7 +13,7 @@ jobs:
       attestations: write
       id-token: write
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # GitHub-hosted runner (isolated)
     
     steps:
       - uses: actions/checkout@v4
@@ -27,7 +27,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm install # Ensures clean dependency installation
+        run: npm install --ignore-scripts  # Enforce locked dependencies
 
       - name: Run tests
         run: npm test
@@ -39,13 +39,7 @@ jobs:
             npm audit signatures
             cyclonedx-npm --output-format json --output-file sbom.json
 
-      - name: Upload SBOM Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: sbom
-          path: sbom.json
-
-      - name: Attest
+      - name: Generate Provenance Attestation
         uses: actions/attest-sbom@v1
         with:
           subject-path: src/index.js
@@ -54,7 +48,11 @@ jobs:
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          path: sbom.json
+          name: package
+          path: |
+            src/index.js
+            sbom.json
+            .github-attestations/
 
   publish:
     if: ${{ github.ref == 'refs/heads/main' }}
