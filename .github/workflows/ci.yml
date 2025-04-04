@@ -72,6 +72,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-            gh attestation verify --owner wulfland ./downloaded-package/index.js
+            gh attestation verify --owner wulfland ./downloaded-package/src/index.js
 
       
