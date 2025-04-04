@@ -8,9 +8,10 @@ on:
 
 jobs:
   build:
-    permissions:
-        attestations: write
-        id-token: write # Least privilege
+    permissions: # Least privilege
+      contents: read
+      attestations: write
+      id-token: write
 
     runs-on: ubuntu-latest
     
