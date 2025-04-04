@@ -55,12 +55,6 @@ jobs:
         with:
           path: sbom.json
 
-      - name: Upload Attestation Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: attestation
-          path: .github-attestations
-
   publish:
     if: ${{ github.ref == 'refs/heads/main' }}
     needs: build
