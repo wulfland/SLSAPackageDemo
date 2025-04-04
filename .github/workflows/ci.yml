@@ -28,9 +28,7 @@ jobs:
         run: npm install # Ensures clean dependency installation
 
       - name: Run tests
-        run: |
-            npm test
-            tree
+        run: npm test
 
       - name: Generate SBOM
         run: |
@@ -48,7 +46,7 @@ jobs:
       - name: Attest
         uses: actions/attest-sbom@v1
         with:
-          subject-path: ./dist
+          subject-path: src/index.js
           sbom-path: sbom.json
         
       - name: Upload a Build Artifact
