@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     permissions:
+        attestations: write
         id-token: write # Least privilege
 
     runs-on: ubuntu-latest
