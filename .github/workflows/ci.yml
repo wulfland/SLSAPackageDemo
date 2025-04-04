@@ -10,7 +10,7 @@ jobs:
   build:
     permissions:
         pull-requests: write
-        security-events: write
+        security-events: write # Least privilege
 
     runs-on: ubuntu-latest
     
@@ -30,6 +30,23 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+      - name: Generate SBOM
+        uses: CycloneDX/gh-node-module-generatebom@v1.0.3
+        with:
+          output: ./bom.xml
+          json: true
+
+      - name: Attest
+        uses: actions/attest-sbom@v1
+        with:
+          subject-path: ./dist
+          sbom-path: bom.json
+        
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: bom.json
 
   publish:
     if: ${{ github.ref == 'refs/heads/main' }}
