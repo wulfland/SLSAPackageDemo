@@ -32,20 +32,28 @@ jobs:
         run: npm test
 
       - name: Generate SBOM
-        uses: CycloneDX/gh-node-module-generatebom@v1.0.3
+        run: |
+            npm install -g @cyclonedx/cyclonedx-npm
+            # Verify package checksums using npm audit signatures
+            npm audit signatures
+            cyclonedx-npm --output-format json --output-file sbom.json
+
+      - name: Upload SBOM Artifact
+        uses: actions/upload-artifact@v4
         with:
-          output: ./bom.xml
+          name: sbom
+          path: sbom.json
 
       - name: Attest
         uses: actions/attest-sbom@v1
         with:
           subject-path: ./dist
-          sbom-path: bom.xml
+          sbom-path: sbom.json
         
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          path: bom.xml
+          path: sbom.json
 
       - name: Upload Attestation Artifact
         uses: actions/upload-artifact@v4
