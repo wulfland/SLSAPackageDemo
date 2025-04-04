@@ -35,18 +35,23 @@ jobs:
         uses: CycloneDX/gh-node-module-generatebom@v1.0.3
         with:
           output: ./bom.xml
-          json: true
 
       - name: Attest
         uses: actions/attest-sbom@v1
         with:
           subject-path: ./dist
-          sbom-path: bom.json
+          sbom-path: bom.xml
         
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          path: bom.json
+          path: bom.xml
+
+      - name: Upload Attestation Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: attestation
+          path: .github-attestations
 
   publish:
     if: ${{ github.ref == 'refs/heads/main' }}
